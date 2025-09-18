@@ -3,10 +3,11 @@ import express, { urlencoded } from "express";
 import morgan from "morgan";
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
-import mongoSanitize from "express-mongo-sanitize";
+//import mongoSanitize from "express-mongo-sanitize";
 import hpp from 'hpp'
 import cookieParser from "cookie-parser";
 import cors from 'cors'
+import Healthrouter from "./routes/health.routes.js";
 
 dotenv.config()
 const app = express()
@@ -17,7 +18,7 @@ const limiter = rateLimit({
     message:"Too many requests from this IP ,please try later"
 })
 app.use(helmet())
-app.use(mongoSanitize())
+//app.use(mongoSanitize())
 app.use(hpp())
 app.use("/api",limiter);
 app.use(express.json({limit:'10kb'}))
@@ -47,6 +48,8 @@ app.use((err,req,res,next) => {
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'))
 }
+app.use("/api/v1/healthCheck",Healthrouter)
+
 app.use((req,res) => {
     res.status(404).json({
         status:"Error",message:"Route not found"
